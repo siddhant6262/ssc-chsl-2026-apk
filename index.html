@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="hi"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f172a"><title>CHSL 2026 AI Coach — Advanced</title>
+<link rel="manifest" href="manifest.json">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f1f5f9;color:#0f172a;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:#0f172a;color:#fff;position:sticky;top:0;z-index:10}.wrap{max-width:1150px;margin:auto;padding:0 14px}.head{padding:16px 0}.brand{font-weight:900;font-size:21px}.muted{color:#64748b;font-size:13px}header .muted{color:#cbd5e1}
+nav{display:flex;gap:7px;overflow:auto;padding-bottom:10px}nav button{white-space:nowrap;border:0;border-radius:10px;padding:9px 12px;background:#1e293b;color:#fff}nav button.on{background:#fff;color:#0f172a}
+main{padding:18px 0 50px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:17px;padding:16px;box-shadow:0 4px 20px #0f172a0b}
+.hero{background:linear-gradient(135deg,#0f172a,#4338ca);color:white;border:0}.hero .muted{color:#cbd5e1}.metric{font-size:30px;font-weight:900}h1{margin:3px 0 8px;font-size:27px}h2{font-size:18px;margin:0 0 10px}h3{font-size:15px}
+button,.btn{border:0;border-radius:10px;padding:10px 13px;background:#4f46e5;color:white;font-weight:750;cursor:pointer}.ghost{background:#eef2ff;color:#3730a3}.red{background:#fee2e2;color:#991b1b}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.bar{height:9px;background:#e2e8f0;border-radius:99px;overflow:hidden}.fill{height:100%;background:#4f46e5}.pill{display:inline-block;background:#eef2ff;color:#3730a3;padding:5px 8px;border-radius:99px;font-size:12px}
+.topic{padding:12px;border:1px solid #e2e8f0;border-radius:12px;margin:8px 0;cursor:pointer}.topic:hover{background:#f8fafc}
+input,select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px}.field{margin:9px 0}
+.option{display:block;width:100%;text-align:left;background:#f8fafc;color:#0f172a;border:1px solid #e2e8f0;margin:8px 0}.option.good{background:#dcfce7;border-color:#86efac}.option.bad{background:#fee2e2;border-color:#fca5a5}
+.notice{padding:11px;border-radius:11px;background:#fffbeb;border:1px solid #fde68a;color:#854d0e}.hide{display:none}
+table{width:100%;border-collapse:collapse}td,th{padding:9px;border-bottom:1px solid #e2e8f0;text-align:left;font-size:13px}
+</style></head><body>
+<header><div class="wrap head">
+<div class="row between"><div><div class="brand">🎯 CHSL 2026 AI Coach</div><div class="muted">Personal Teacher • Adaptive Tests • Smart Revision • Analytics</div></div><div id="streak">🔥 0</div></div>
+<nav id="nav"></nav></div></header><main class="wrap" id="app"></main>
+<script>
+const SY={
+"Maths":["Number System","Percentage","Ratio & Proportion","Average","Interest","Profit & Loss","Discount","Partnership","Mixture & Alligation","Time & Distance","Time & Work","Algebra","Geometry","Mensuration","Trigonometry","Data Interpretation"],
+"Reasoning":["Analogy","Classification","Series","Coding-Decoding","Venn Diagram","Blood Relation","Direction Sense","Non-Verbal Reasoning","Problem Solving","Embedded Figures","Folding & Unfolding","Critical Thinking"],
+"English":["Vocabulary","Grammar","Error Spotting","Fill in the Blanks","Synonyms & Antonyms","Idioms & Phrases","One Word Substitution","Active/Passive","Direct/Indirect","Cloze Test","Sentence Rearrangement","Comprehension","Spelling"],
+"General Awareness":["History","Culture","Geography","Polity & Constitution","Economy","Science","Sports","Awards & Honours","Books & Authors","Important Days","Current Affairs"],
+"Computer":["Computer Basics","CPU & Memory","Operating System","MS Word","MS Excel","MS PowerPoint","Internet & Email","Networking","Cyber Security"],
+"Typing/Skill":["Typing Accuracy","Typing Speed","Data Entry","Timed Drills"]
+};
+const Q=[
+["Maths","Percentage","200 का 15% कितना है?",["15","20","30","35"],2,"15% = 15/100; 200×15/100 = 30."],
+["Maths","Average","10, 20 और 30 का average?",["10","15","20","30"],2,"(10+20+30)/3 = 20."],
+["Reasoning","Series","2, 4, 8, 16, ?",["18","24","30","32"],3,"हर term ×2 है, इसलिए 32."],
+["English","Synonyms & Antonyms","Synonym of Rapid?",["Slow","Fast","Weak","Late"],1,"Rapid का अर्थ Fast है."],
+["GA","Polity & Constitution","भारत का संविधान कब अपनाया गया?",["15 Aug 1947","26 Nov 1949","26 Jan 1950","2 Oct 1950"],1,"संविधान 26 Nov 1949 को adopted हुआ."],
+["English","Grammar","Choose correct sentence.",["He go to school.","He goes to school.","He going school.","He gone school."],1,"Singular 'He' के साथ goes."],
+["Maths","Profit & Loss","CP ₹100 और SP ₹120 है. Profit%?",["10%","15%","20%","25%"],2,"Profit=20; 20/100×100 = 20%."],
+["Reasoning","Coding-Decoding","यदि CAT को DBU लिखा जाए तो DOG?",["EPH","EOG","DPH","FQI"],0,"हर अक्षर में +1: D→E, O→P, G→H."]
+].map(x=>({s:x[0],t:x[1],q:x[2],a:x[3],c:x[4],e:x[5]}));
+
+let S=JSON.parse(localStorage.getItem("chslAIAdvanced")||"{}");
+S.profile??={name:"",hours:2,language:"Hindi/Hinglish",exam:"SSC CHSL 2026"};
+S.skill??={};S.tests??=[];S.mistakes??=[];S.sessions??=[];S.reminders??=[];S.streak??=0;S.lastStudy??="";
+function save(){localStorage.setItem("chslAIAdvanced",JSON.stringify(S))}
+function mastery(){let v=Object.values(S.skill);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):0}
+function nav(){let a=[["home","🏠 Home"],["learn","📚 Learn"],["test","📝 Tests"],["plan","🗓️ Plan"],["review","🔄 Revision"],["analysis","📊 Analysis"],["profile","⚙️ Profile"]];document.getElementById("nav").innerHTML=a.map(x=>`<button id="n${x[0]}" onclick="go('${x[0]}')">${x[1]}</button>`).join("")}
+function go(p){nav();document.getElementById("n"+p)?.classList.add("on");({home,learn,test,plan,review,analysis,profile}[p])();scrollTo(0,0)}
+function home(){
+let m=mastery(), name=S.profile.name?S.profile.name+" ":"";
+document.getElementById("app").innerHTML=`<div class="grid">
+<div class="card hero"><span class="pill">AI COACH</span><h1>${name}आज का mission 🎯</h1><p>Mastery <b>${m}%</b> • ${S.profile.hours} घंटे available</p><button onclick="go('plan')">Today's Plan</button></div>
+<div class="card"><h2>📈 Overall Mastery</h2><div class="metric">${m}%</div><div class="bar"><div class="fill" style="width:${m}%"></div></div></div>
+<div class="card"><h2>🔥 Streak</h2><div class="metric">${S.streak} days</div><p class="muted">Study session complete करके streak बढ़ाओ.</p></div>
+<div class="card"><h2>🧪 Baseline / Adaptive Test</h2><p class="muted">AI तुम्हारे weak topics खोजेगा.</p><button onclick="runTest(true)">Start Test</button></div>
+</div><br><div class="card"><h2>🤖 Coach recommendation</h2><p>${recommend()}</p></div>`}
+function recommend(){let arr=Object.entries(S.skill).sort((a,b)=>a[1]-b[1]);if(!arr.length)return"पहले adaptive test दो। उसके बाद मैं तुम्हारे weak topics के आधार पर plan बनाऊँगा.";let [k,v]=arr[0],t=k.split("|");return`आज <b>${t[1]}</b> को priority दो। Current mastery ${v}%. पहले concept, फिर 10 targeted questions और अंत में mini-test.`}
+function learn(){let out=`<div class="card"><h1>📚 Learn with AI</h1><p class="muted">Concept → Example → Practice → Test → Analysis</p></div><br><div class="grid">`;for(let [s,ts] of Object.entries(SY))out+=`<div class="card"><h2>${s}</h2>${ts.map(t=>`<div class="topic" onclick="lesson('${s}','${t}')"><b>${t}</b><div class="muted">${S.skill[s+"|"+t]||0}% mastery</div></div>`).join("")}</div>`;document.getElementById("app").innerHTML=out+"</div>"}
+function lesson(s,t){let q=Q.find(x=>x.s===s&&x.t===t);document.getElementById("app").innerHTML=`<div class="card"><span class="pill">${s}</span><h1>${t}</h1><div class="card"><h3>🧑‍🏫 Concept</h3><p>${concept(t)}</p></div><div class="card"><h3>💡 Example</h3><p>${q?q.e:"इस topic को छोटे rules में तोड़कर examples के साथ समझो। फिर तुरंत practice करो."}</p></div>${q?`<button onclick="topicQuestion('${s}','${t}')">Practice Question →</button>`:`<button onclick="go('test')">Topic Test →</button>`} <button class="ghost" onclick="go('learn')">Back</button></div>`}
+function concept(t){let c={Percentage:"Percentage का अर्थ प्रति 100 है: x% = x/100. किसी संख्या का x% निकालने के लिए संख्या×x/100.",Average:"Average = सभी values का total ÷ values की संख्या.",Profit:"Profit = SP−CP और Profit% = Profit/CP×100.",Grammar:"Subject और verb का agreement sentence की correctness के लिए जरूरी है."};return c[t]||`${t} में पहले definitions और core rules समझो, फिर solved examples और timed practice करो.`}
+function topicQuestion(s,t){let q=Q.find(x=>x.s===s&&x.t===t);if(!q)return runTest();renderQuiz([q], "Topic Practice")}
+function test(){document.getElementById("app").innerHTML=`<div class="grid"><div class="card hero"><h1>📝 Test Center</h1><p>Adaptive test तुम्हारे answers से difficulty और weak-topic profile update करता है.</p><button onclick="runTest(true)">Adaptive Test</button></div><div class="card"><h2>Available</h2><p>Chapter • Subject • Mixed • PYQ-style • Full Mock</p><p class="muted">इस build में local starter bank है; production में server-side large question bank जोड़ा जा सकता है.</p></div></div>`}
+function runTest(adaptive=false){let qs=[...Q].sort(()=>Math.random()-.5);if(adaptive){let weak=Object.entries(S.skill).sort((a,b)=>a[1]-b[1]).slice(0,3).map(x=>x[0]);let w=qs.filter(q=>weak.includes(q.s+"|"+q.t));qs=[...w,...qs].slice(0,8)}else qs=qs.slice(0,8);renderQuiz(qs,adaptive?"Adaptive Test":"Mixed Test")}
+function renderQuiz(qs,title){let i=0,score=0,started=Date.now();function draw(){let q=qs[i];document.getElementById("app").innerHTML=`<div class="card"><div class="row between"><span class="pill">${title}</span><span>${i+1}/${qs.length}</span></div><h2 style="margin-top:15px">${q.q}</h2>${q.a.map((x,j)=>`<button class="option" onclick="pick(${j})">${String.fromCharCode(65+j)}. ${x}</button>`).join("")}<p class="muted">${q.s} • ${q.t}</p></div>`}
+window.pick=(j)=>{let q=qs[i],bs=document.querySelectorAll(".option");bs.forEach((b,k)=>{b.disabled=true;if(k===q.c)b.classList.add("good");if(k===j&&j!==q.c)b.classList.add("bad")});let key=q.s+"|"+q.t;if(j===q.c){score++;S.skill[key]=Math.min(100,(S.skill[key]||35)+10)}else{S.skill[key]=Math.max(0,(S.skill[key]||35)-4);S.mistakes.push({date:new Date().toISOString(),s:q.s,t:q.t,q:q.q,correct:q.a[q.c],picked:q.a[j],explain:q.e})}setTimeout(()=>{i++;if(i<qs.length)draw();else finish()},550)}
+function finish(){let sec=Math.round((Date.now()-started)/1000);S.tests.push({date:new Date().toISOString(),score,total:qs.length,seconds:sec,title});S.streak=Math.max(1,S.streak+1);S.lastStudy=new Date().toISOString();save();document.getElementById("app").innerHTML=`<div class="card hero"><h1>Test complete 🎉</h1><div class="metric">${score}/${qs.length}</div><p>Accuracy ${Math.round(score/qs.length*100)}% • Time ${sec}s</p><button onclick="go('analysis')">See AI Analysis</button></div>`}draw()}
+function plan(){let h=Number(S.profile.hours)||2, arr=h<=1?["Maths 25m","English 20m","Reasoning 15m","GK 10m","Revision 10m"]:h<=2?["Maths 40m","English 30m","Reasoning 25m","GK 20m","Revision 15m","Mini Test 10m"]:["Maths 60m","English 45m","Reasoning 40m","GK 30m","Revision 20m","Mock + Analysis 25m"];document.getElementById("app").innerHTML=`<div class="card"><h1>🗓️ AI Daily Planner</h1><p>तुम्हारे ${h} घंटे के हिसाब से schedule.</p>${arr.map((x,i)=>`<div class="topic"><b>${i+1}. ${x}</b><div class="muted">${i===0?"Weak topic priority":i===arr.length-1?"Test + analysis":"Learn + practice"}</div></div>`).join("")}<button onclick="studyDone()">✅ Study Session Complete</button> <button onclick="notify()">🔔 Reminder Permission</button></div>`}
+function studyDone(){S.sessions.push(new Date().toISOString());S.streak=Math.max(1,S.streak+1);S.lastStudy=new Date().toISOString();save();alert("Session saved. AI analysis updated.");go("home")}
+function review(){let ms=S.mistakes.slice(-12).reverse();document.getElementById("app").innerHTML=`<div class="card"><h1>🔄 Smart Revision</h1><p class="muted">Recent mistakes first — इन्हीं को दोहराकर retention बढ़ाओ.</p>${ms.length?ms.map((m,i)=>`<div class="topic"><b>${i+1}. ${m.t}</b><p>${m.q}</p><div class="muted">Your answer: ${m.picked} • Correct: ${m.correct}</div><p><b>Why:</b> ${m.explain}</p></div>`).join(""):"अभी mistakes नहीं हैं। Test दो."}</div>`}
+function analysis(){let total=S.tests.reduce((a,x)=>a+x.total,0),sc=S.tests.reduce((a,x)=>a+x.score,0),acc=total?Math.round(sc/total*100):0;let weak=Object.entries(S.skill).sort((a,b)=>a[1]-b[1]).slice(0,8);document.getElementById("app").innerHTML=`<div class="grid"><div class="card"><h2>Overall Accuracy</h2><div class="metric">${acc}%</div></div><div class="card"><h2>Tests</h2><div class="metric">${S.tests.length}</div></div><div class="card"><h2>Mistakes</h2><div class="metric">${S.mistakes.length}</div></div><div class="card"><h2>Sessions</h2><div class="metric">${S.sessions.length}</div></div></div><br><div class="card"><h2>🎯 Weak Topic Radar</h2>${weak.length?weak.map(([k,v])=>`<div class="topic"><div class="row between"><b>${k.replace("|"," • ")}</b><span>${v}%</span></div><div class="bar"><div class="fill" style="width:${v}%"></div></div></div>`).join(""):"No data yet."}<div class="notice">AI advice: ${recommend()}</div></div><br><div class="card"><h2>Test History</h2><table><tr><th>Date</th><th>Test</th><th>Score</th><th>Time</th></tr>${S.tests.slice(-10).reverse().map(x=>`<tr><td>${new Date(x.date).toLocaleDateString()}</td><td>${x.title}</td><td>${x.score}/${x.total}</td><td>${x.seconds}s</td></tr>`).join("")}</table></div>`}
+function profile(){document.getElementById("app").innerHTML=`<div class="card"><h1>⚙️ Personal Coach</h1><div class="field"><label>Name</label><input id="nm" value="${S.profile.name}"></div><div class="field"><label>Daily hours</label><input id="hr" type="number" min=".5" max="12" step=".5" value="${S.profile.hours}"></div><div class="field"><label>Language</label><select id="lg"><option>Hindi/Hinglish</option><option>English</option></select></div><button onclick="saveProfile()">Save</button> <button class="red" onclick="resetAll()">Reset all data</button></div>`}
+function saveProfile(){S.profile.name=nm.value;S.profile.hours=hr.value;S.profile.language=lg.value;save();go("home")}
+function resetAll(){if(confirm("पूरा progress delete करना है?")){localStorage.removeItem("chslAIAdvanced");location.reload()}}
+async function notify(){if(!("Notification"in window)){alert("Browser notifications supported नहीं हैं.");return}let p=await Notification.requestPermission();if(p==="granted")new Notification("CHSL 2026 AI Coach",{body:"आज का study session शुरू करो 🎯"});else alert("Notification permission allow करें.")}
+nav();go("home");
+</script></body></html>

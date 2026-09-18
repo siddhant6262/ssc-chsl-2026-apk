@@ -1,0 +1,9 @@
+{
+  "name": "SSC CHSL 2026 AI Coach",
+  "short_name": "CHSL AI",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#0f172a",
+  "background_color": "#f1f5f9",
+  "lang": "hi"
+}

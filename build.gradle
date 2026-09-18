@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.application' version '8.6.1'
+}
+
+android {
+    namespace 'com.ssc.chslcoach'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.ssc.chslcoach'
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName '1.0'
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.setSrcDirs(['.'])
+            assets.setSrcDirs(["$buildDir/generated/assets"])
+            res.setSrcDirs([])
+        }
+    }
+}
+
+tasks.register('prepareWebAssets', Copy) {
+    from('.') {
+        include 'index.html'
+        include 'manifest.json'
+    }
+    into "$buildDir/generated/assets"
+}
+
+preBuild.dependsOn prepareWebAssets
